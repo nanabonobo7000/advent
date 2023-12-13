@@ -1,6 +1,6 @@
 package main
 
-import("fmt";"bufio";"os";"strings")
+import("fmt";"bufio";"os";"strings";"math")
 
 type pipe struct{
     c rune
@@ -47,62 +47,109 @@ func main(){
    
     cc := 0
     var open []int
+    var cs []int
     
     for _,pp := range pipes[0]{
         if(pp.c!='0'){
             open = append(open,1)
-        }else{open=append(open,0)}
+            cs = append(cs,int(pp.c))
+        }else{
+            open=append(open,0)
+            cs = append(cs,0)
+        }
     }
-    fmt.Println("PIPES",open)
+    fmt.Println("OPEN",open)
     in := 0
-    insider:=0
+    //insider:=0
+    rs:=0
+    hpiping:=0
+    vpiping:=0
     
+    //fmt.Println(50+count)
     for i,p := range pipes{
         if(i>0){
             in=0
-            for j,pp := range p{   
-                if(pp.c>'0'){
-                    if(open[j]==1){
-                        if(in==0){
-                            in=1
-                        }else if(in==1){
-                            in=1
-                        }else if(in==2){
-                            in=0
-                            cc=cc+insider
-                            insider=0
-                        }
-                    }
-                }else if(pp.c=='0'){
-                    if(open[j]==1){
-                        if(in==0){
-                            in=0
-                            open[j]=0
-                        }else if(in==1){
-                            in=2
-                            insider++
-                            pipes[i][j].c = '1'
-                        }else if(in==2){
-                            in=2
-                            insider++
-                            pipes[i][j].c = '1'
+            rs=0
+            for j,pp := range p{
+                pc := int(pp.c)
+                //if(pc==50+count){pc=-1}
+                //fmt.Printf("%d ",pc)
+                if(j==0){
+                    if(pc>48||pc==-1){
+                        in=1
+                        rs = pc
+                        hpiping=1
+                        
+                        if(open[j]==1){
+                            if(math.Abs(float64(cs[j]-pc))>1&&pc!=-1&&cs[j]!=-1){
+                                open[j]=0
+                                cs[j]=0
+                                vpiping=0
+                            }else{
+                                cs[j]=pc
+                                open[j]=1
+                                vpiping=1
+                            }
+                        }else{
+                            open[j]=1
+                            cs[j]=pc
+                            vpiping=0
                         }
                     }else{
-                        if(in==0){
-                            in=0
-                        }else if(in==1){
-                            in=2
-                            insider++
-                            pipes[i][j].c = '1'
-                        }else if(in==2){
-                            in=2
-                            insider++
-                            pipes[i][j].c = '1'
+                        if(open[j]==1&&vpiping==1){
+                            open[j]=0
+                            vpiping=0
                         }
                     }
-                }
+                    
+                    
+                    
+                }else{        
+                    if(pc>48||pc==-1){
+                        if(in==1){
+                            if(math.Abs(float64(pc-rs))>1&&pc!=-1&&rs!=-1){
+                                in=0
+                                hpiping=0
+                            }else{
+                                hpiping=1
+                                rs=pc
+                            }
+                        }else if(in==0){
+                            in=1
+                            rs=pc
+                        }
+                        if(open[j]==1){
+                            if(math.Abs(float64(cs[j]-pc))>1&&pc!=-1&&cs[j]!=-1){
+                                open[j]=0
+                                cs[j]=0
+                                vpiping=0
+                            }else{
+                                vpiping=1
+                                cs[j]=pc
+                            }
+                        }else if(open[j]==0){
+                            open[j]=1
+                            cs[j]=pc
+                        }
+                    }else if(pc==48){
+                        if(vpiping==1){
+                            open[j]=0
+                            vpiping=0
+                        }
+                        if(hpiping==1){
+                            in=0
+                            hpiping=0
+                        }
+                        if(in==1&&open[j]==1){
+                            cc++
+                            pipes[i][j].c='1'
+                        }
+                    }
+                }    
+                
+                
             }
-            //cc=cc+insider
+            fmt.Println("OPEN",open)
         }
     }        
         
